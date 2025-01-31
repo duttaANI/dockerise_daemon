@@ -1,0 +1,22 @@
+version: '3'
+services:
+  daemon1:
+    build: .
+    command: ["/app/daemon1"]
+    ports:
+      - "65432:65432"
+    networks:
+      - app_network
+
+  daemon2:
+    build: .
+    command: ["/app/daemon2"]
+    depends_on:
+      - daemon1
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+

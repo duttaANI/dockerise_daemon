@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 
 #define PORT 65432
 #define BUFFER_SIZE 1024
@@ -21,22 +22,24 @@ int main() {
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
-    
-    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
-        perror("Invalid address/ Address not supported");
+
+    struct hostent *server = gethostbyname("daemon1"); // Resolve container name
+    if (server == NULL) {
+        perror("Host not found");
         exit(EXIT_FAILURE);
     }
-    
+    memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
+
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
         perror("Connection Failed");
         exit(EXIT_FAILURE);
     }
-    printf("Process 2: Connected to Process 1\n");
+    printf("daemon 2: Connected to daemon 1\n");
 
     strcpy(buffer, "B");  // Start with "B"
     
     while (1) {
-        printf("Process 2: Sending string: %s\n", buffer);
+        printf("daemon 2: Sending string: %s\n", buffer);
 	sleep(1);  // Delay before sending
         send(sock, buffer, strlen(buffer), 0);
 
@@ -45,7 +48,7 @@ int main() {
         if (valread <= 0) break;
 
         buffer[valread] = '\0';  // Null terminate received string
-        printf("Process 2: Received string: %s\n", buffer);
+        printf("daemon 2: Received string: %s\n", buffer);
 
         strcat(buffer, "B");  // Append 'B' before next send
     }

@@ -33,14 +33,14 @@ int main() {
         perror("Listen failed");
         exit(EXIT_FAILURE);
     }
-    printf("Process 1: Waiting for connection...\n");
+    printf("daemon 1: Waiting for connection...\n");
     
     new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
     if (new_socket < 0) {
         perror("Accept failed");
         exit(EXIT_FAILURE);
     }
-    printf("Process 1: Connected\n");
+    printf("daemon 1: Connected\n");
 
     while (1) {
         memset(buffer, 0, BUFFER_SIZE);  // Reset buffer
@@ -48,10 +48,10 @@ int main() {
         if (valread <= 0) break;
 
         buffer[valread] = '\0';  // Null terminate received string
-        printf("Process 1: Received string: %s\n", buffer);
+        printf("daemon 1: Received string: %s\n", buffer);
 
         strcat(buffer, "A");  // Append 'A'
-        printf("Process 1: Appended 'A': %s\n", buffer);
+        printf("daemon 1: Appended 'A': %s\n", buffer);
 	sleep(1);  // Delay before sending
         send(new_socket, buffer, strlen(buffer), 0);  // Send back
     }
